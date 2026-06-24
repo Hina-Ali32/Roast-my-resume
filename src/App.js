@@ -29,6 +29,35 @@ function App() {
     setLoading(false);
   };
 
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.type === "application/pdf") {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const typedArray = new Uint8Array(event.target.result);
+        const pdfjsLib = await import("pdfjs-dist");
+        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
+        const pdf = await pdfjsLib.getDocument(typedArray).promise;
+        let text = "";
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          text += content.items.map((item) => item.str).join(" ");
+        }
+        setResume(text);
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setResume(event.target.result);
+      };
+      reader.readAsText(file);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center px-4 py-10">
 
@@ -42,7 +71,6 @@ function App() {
 
       <div className="w-full max-w-2xl bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl p-5 mt-4">
 
-       
         <textarea
           className="w-full h-44 bg-gray-800 text-white rounded-xl p-4 text-base resize-none outline-none border border-gray-700 focus:border-orange-500 transition"
           placeholder="Paste your resume text here..."
@@ -52,7 +80,7 @@ function App() {
 
         <div className="mt-3 flex items-center justify-between bg-gray-800 border border-gray-700 rounded-xl px-4 py-3">
           <span className="text-gray-400 text-sm">
-            {resume ? "File loaded ✅" : "Or upload resume (.txt)"}
+            {resume ? "File loaded ✅" : "Or upload resume (.txt or .pdf)"}
           </span>
           <label className="cursor-pointer">
             <div className="bg-orange-500 hover:bg-orange-600 transition p-2 rounded-lg">
@@ -62,17 +90,9 @@ function App() {
             </div>
             <input
               type="file"
-              accept=".txt"
+              accept=".txt,.pdf"
               className="hidden"
-              onChange={(e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                  setResume(event.target.result);
-                };
-                reader.readAsText(file);
-              }}
+              onChange={handleFileUpload}
             />
           </label>
         </div>
