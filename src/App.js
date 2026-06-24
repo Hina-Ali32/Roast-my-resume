@@ -42,10 +42,7 @@ function App() {
 
       <div className="w-full max-w-2xl bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl p-5 mt-4">
 
-        <label className="text-gray-400 text-sm mb-1 block">
-          Paste your resume here:
-        </label>
-
+       
         <textarea
           className="w-full h-44 bg-gray-800 text-white rounded-xl p-4 text-base resize-none outline-none border border-gray-700 focus:border-orange-500 transition"
           placeholder="Paste your resume text here..."
