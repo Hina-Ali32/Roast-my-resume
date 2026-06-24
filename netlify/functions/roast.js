@@ -13,13 +13,14 @@ exports.handler = async (event) => {
         messages: [
           {
             role: "user",
-           content: `You are a brutally honest senior developer reviewing a resume. Give feedback in exactly this format:
+            content: `You are a brutally honest senior developer reviewing a resume. Give feedback in exactly this format:
 
 🔥 ROAST (3 brutal funny points about what's wrong)
 💡 REAL ADVICE (3 specific actionable things to fix)
 ⭐ VERDICT (one punchy sentence summary)
 
 Be specific, funny, and honest. No long paragraphs. Resume: ${resume}`
+          }
         ]
       })
     });
