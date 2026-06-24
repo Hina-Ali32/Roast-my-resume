@@ -21,9 +21,9 @@ function App() {
         body: JSON.stringify({ resume })
       });
       const data = await response.json();
-      setRoast(data.roast);
+      setRoast(data.roast || data.error || "No response received");
     } catch (err) {
-      setError("Something went wrong. Please try again.");
+      setError(JSON.stringify(err));
     }
 
     setLoading(false);
