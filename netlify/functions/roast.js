@@ -20,7 +20,9 @@ exports.handler = async (event) => {
     });
 
     const data = await response.json();
-    const roast = data?.choices?.[0]?.message?.content || "Could not generate roast";
+    console.log("Groq response:", JSON.stringify(data));
+    
+    const roast = data?.choices?.[0]?.message?.content || JSON.stringify(data);
 
     return {
       statusCode: 200,
@@ -28,6 +30,7 @@ exports.handler = async (event) => {
     };
 
   } catch (error) {
+    console.log("Error:", error.message);
     return {
       statusCode: 500,
       body: JSON.stringify({ error: error.message })
