@@ -100,9 +100,9 @@ function App() {
 
       </div>
 
-      <p className="mt-6 text-gray-600 text-sm">
-        Built with React + Claude AI
-      </p>
+    <p className="mt-6 text-gray-500 text-sm tracking-wide">
+  Roast My Resume · Powered by AI · Built by Hina
+</p>
 
     </div>
   );
