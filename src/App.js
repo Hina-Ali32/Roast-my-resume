@@ -32,11 +32,11 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center px-4 py-10">
 
-      <h1 className="text-5xl font-bold text-orange-500 mb-2">
+      <h1 className="text-3xl md:text-5xl font-bold text-orange-500 mb-2">
         🔥 Roast My Resume
       </h1>
 
-      <p className="text-gray-400 text-xl mb-8">
+      <p className="text-gray-400 text-base md:text-xl mb-8 text-center px-2">
         Paste your resume and get brutal honest AI feedback
       </p>
 
