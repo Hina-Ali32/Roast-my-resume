@@ -9,7 +9,7 @@ exports.handler = async (event) => {
         "Authorization": `Bearer ${process.env.GROQ_KEY}`
       },
       body: JSON.stringify({
-        model: "llama3-8b-8192",
+        model: "llama-3.3-70b-versatile",
         messages: [
           {
             role: "user",
@@ -21,7 +21,7 @@ exports.handler = async (event) => {
 
     const data = await response.json();
     console.log("Groq response:", JSON.stringify(data));
-    
+
     const roast = data?.choices?.[0]?.message?.content || JSON.stringify(data);
 
     return {
