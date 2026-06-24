@@ -39,7 +39,9 @@ function App() {
       <p className="text-gray-400 text-base md:text-xl mb-8 text-center px-2">
         Paste your resume and get brutal honest AI feedback
       </p>
-
+<p className="text-gray-600 text-xs mb-6 text-center px-4">
+  ⚠️ Do not upload resumes with sensitive info like ID numbers or bank details.
+</p>
       <div className="w-full max-w-2xl bg-gray-900 rounded-2xl shadow-2xl p-6">
 
         <textarea
