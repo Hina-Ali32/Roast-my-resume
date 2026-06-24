@@ -7,19 +7,25 @@ function App() {
   const [loading, setLoading] = useState(false);
 const handleRoast = async () => {
   if (!resume) {
-    alert("Please paste your resume first!");
+    setError("Please paste your resume or upload a file first!");
     return;
   }
+  setError("");
   setLoading(true);
   setRoast("");
 
-  const response = await fetch("/.netlify/functions/roast", {
-    method: "POST",
-    body: JSON.stringify({ resume })
-  });
+  try {
+    const response = await fetch("/.netlify/functions/roast", {
+      method: "POST",
+      body: JSON.stringify({ resume })
+    });
 
-  const data = await response.json();
-  setRoast(data.roast);
+    const data = await response.json();
+    setRoast(data.roast);
+  } catch (err) {
+    setError("Something went wrong. Please try again.");
+  }
+
   setLoading(false);
 };
   return (
