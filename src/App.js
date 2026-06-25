@@ -40,24 +40,13 @@ function App() {
 
     if (file.type === "application/pdf") {
       const reader = new FileReader();
-      reader.onload = async (event) => {
-        try {
-          const pdfjsLib = await import("pdfjs-dist");
-          pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
-          const pdf = await pdfjsLib.getDocument({ data: event.target.result }).promise;
-          let text = "";
-          for (let i = 1; i <= pdf.numPages; i++) {
-            const page = await pdf.getPage(i);
-            const content = await page.getTextContent();
-            text += content.items.map((item) => item.str).join(" ") + "\n";
-          }
-          setResume(text);
-          setFileLoading(false);
-        } catch (err) {
-          setError("Could not read PDF. Please paste your resume text instead.");
-          setFileName("");
-          setFileLoading(false);
-        }
+      reader.onload = (event) => {
+        const base64 = btoa(
+          new Uint8Array(event.target.result)
+            .reduce((data, byte) => data + String.fromCharCode(byte), "")
+        );
+        setResume(`PDF:${base64}`);
+        setFileLoading(false);
       };
       reader.readAsArrayBuffer(file);
 
@@ -115,7 +104,7 @@ function App() {
                 <div>
                   <p className="text-white font-semibold text-sm">{fileName}</p>
                   <p className="text-gray-400 text-xs mt-1">
-                    {fileLoading ? "Reading file..." : "File ready to roast 🔥"}
+                    {fileLoading ? "Reading file..." : "File ready"}
                   </p>
                 </div>
               </div>
@@ -138,7 +127,7 @@ function App() {
                 </div>
               )}
               <p className="text-gray-600 text-xs mt-1 text-right">
-                {fileLoading ? "Processing..." : "Ready ✅"}
+                {fileLoading ? "Processing..." : "Ready "}
               </p>
             </div>
           </div>
@@ -146,7 +135,7 @@ function App() {
 
         <div className="mt-3 flex items-center justify-between bg-gray-800 border border-gray-700 rounded-xl px-4 py-3">
           <span className="text-gray-400 text-sm">
-            {fileName ? `${fileName} loaded ✅` : "Or upload resume (.txt, .pdf, .docx)"}
+            {fileName ? `${fileName} loaded ` : "Or upload resume (.txt, .pdf, .docx)"}
           </span>
           <label className="cursor-pointer">
             <div className="bg-orange-500 hover:bg-orange-600 transition p-2 rounded-lg">
