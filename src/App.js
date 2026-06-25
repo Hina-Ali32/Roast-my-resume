@@ -39,8 +39,8 @@ function App() {
       const reader = new FileReader();
       reader.onload = async (event) => {
         try {
-          const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.js");
-          pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js`;
+          const pdfjsLib = await import("pdfjs-dist");
+          pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
           const pdf = await pdfjsLib.getDocument({ data: event.target.result }).promise;
           let text = "";
           for (let i = 1; i <= pdf.numPages; i++) {
@@ -100,7 +100,6 @@ function App() {
             onChange={(e) => setResume(e.target.value)}
           />
         ) : (
-         
           <div className="w-full h-44 bg-gray-800 rounded-xl border border-orange-500 flex items-center justify-between px-5">
             <div className="flex items-center gap-4">
               <span className="text-4xl">📄</span>
