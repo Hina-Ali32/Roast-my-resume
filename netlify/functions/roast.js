@@ -35,7 +35,8 @@ Analyze this resume carefully and respond in EXACTLY this format — no extra te
 [Be direct — would you interview this person or not, what is their biggest strength, and what is the ONE thing they must fix before applying anywhere]
 
 Rules: Every bullet must be specific to THIS resume, not generic advice. Maximum 2 to 3 sentences per point. Be harsh but genuinely helpful — your goal is to help them get hired. Resume: ${resume}`
-        ]
+       }
+       ]
       })
     });
 
