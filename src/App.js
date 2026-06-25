@@ -5,6 +5,7 @@ function App() {
   const [roast, setRoast] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [fileName, setFileName] = useState("");
 
   const handleRoast = async () => {
     if (!resume) {
@@ -28,9 +29,11 @@ function App() {
 
     setLoading(false);
   };
-const handleFileUpload = async (e) => {
+
+  const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+    setFileName(file.name);
 
     if (file.type === "application/pdf") {
       const reader = new FileReader();
@@ -42,6 +45,18 @@ const handleFileUpload = async (e) => {
         setResume(`PDF:${base64}`);
       };
       reader.readAsArrayBuffer(file);
+
+    } else if (file.name.endsWith(".docx")) {
+      const mammoth = await import("mammoth");
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const result = await mammoth.extractRawText({
+          arrayBuffer: event.target.result
+        });
+        setResume(result.value);
+      };
+      reader.readAsArrayBuffer(file);
+
     } else {
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -50,6 +65,7 @@ const handleFileUpload = async (e) => {
       reader.readAsText(file);
     }
   };
+
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center px-4 py-10">
 
@@ -63,16 +79,30 @@ const handleFileUpload = async (e) => {
 
       <div className="w-full max-w-2xl bg-gray-900 border border-gray-800 rounded-2xl shadow-2xl p-5 mt-4">
 
-        <textarea
-          className="w-full h-44 bg-gray-800 text-white rounded-xl p-4 text-base resize-none outline-none border border-gray-700 focus:border-orange-500 transition"
-          placeholder="Paste your resume text here..."
-          value={resume}
-          onChange={(e) => setResume(e.target.value)}
-        />
+        {!fileName ? (
+          <textarea
+            className="w-full h-44 bg-gray-800 text-white rounded-xl p-4 text-base resize-none outline-none border border-gray-700 focus:border-orange-500 transition"
+            placeholder="Paste your resume text here..."
+            value={resume}
+            onChange={(e) => setResume(e.target.value)}
+          />
+        ) : (
+          <div className="w-full h-44 bg-gray-800 rounded-xl border border-orange-500 flex flex-col items-center justify-center gap-2">
+            <span className="text-4xl">📄</span>
+            <p className="text-white font-semibold">{fileName}</p>
+            <p className="text-gray-400 text-sm">File ready to roast</p>
+            <button
+              className="text-red-400 text-xs mt-1 hover:text-red-300"
+              onClick={() => { setFileName(""); setResume(""); }}
+            >
+              ✕ Remove file
+            </button>
+          </div>
+        )}
 
         <div className="mt-3 flex items-center justify-between bg-gray-800 border border-gray-700 rounded-xl px-4 py-3">
           <span className="text-gray-400 text-sm">
-            {resume ? "File loaded ✅" : "Or upload resume (.txt or .pdf)"}
+            {fileName ? `${fileName} loaded ✅` : "Or upload resume (.txt, .pdf, .docx)"}
           </span>
           <label className="cursor-pointer">
             <div className="bg-orange-500 hover:bg-orange-600 transition p-2 rounded-lg">
@@ -82,7 +112,7 @@ const handleFileUpload = async (e) => {
             </div>
             <input
               type="file"
-              accept=".txt,.pdf"
+              accept=".txt,.pdf,.docx"
               className="hidden"
               onChange={handleFileUpload}
             />
