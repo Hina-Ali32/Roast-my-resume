@@ -1,15 +1,6 @@
-const pdfParse = require("pdf-parse");
-
 exports.handler = async (event) => {
   try {
     let { resume } = JSON.parse(event.body);
-
-    if (resume.startsWith("PDF:")) {
-      const base64 = resume.replace("PDF:", "");
-      const buffer = Buffer.from(base64, "base64");
-      const pdfData = await pdfParse(buffer);
-      resume = pdfData.text;
-    }
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
