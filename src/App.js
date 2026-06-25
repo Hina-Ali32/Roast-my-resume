@@ -6,6 +6,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [fileName, setFileName] = useState("");
+  const [fileLoading, setFileLoading] = useState(false);
 
   const handleRoast = async () => {
     if (!resume) {
@@ -34,6 +35,8 @@ function App() {
     const file = e.target.files[0];
     if (!file) return;
     setFileName(file.name);
+    setFileLoading(true);
+    setError("");
 
     if (file.type === "application/pdf") {
       const reader = new FileReader();
@@ -49,9 +52,11 @@ function App() {
             text += content.items.map((item) => item.str).join(" ") + "\n";
           }
           setResume(text);
+          setFileLoading(false);
         } catch (err) {
           setError("Could not read PDF. Please paste your resume text instead.");
           setFileName("");
+          setFileLoading(false);
         }
       };
       reader.readAsArrayBuffer(file);
@@ -63,9 +68,11 @@ function App() {
           const mammoth = await import("mammoth");
           const result = await mammoth.extractRawText({ arrayBuffer: event.target.result });
           setResume(result.value);
+          setFileLoading(false);
         } catch (err) {
           setError("Could not read DOCX. Please paste your resume text instead.");
           setFileName("");
+          setFileLoading(false);
         }
       };
       reader.readAsArrayBuffer(file);
@@ -74,6 +81,7 @@ function App() {
       const reader = new FileReader();
       reader.onload = (event) => {
         setResume(event.target.result);
+        setFileLoading(false);
       };
       reader.readAsText(file);
     }
@@ -100,20 +108,39 @@ function App() {
             onChange={(e) => setResume(e.target.value)}
           />
         ) : (
-          <div className="w-full h-44 bg-gray-800 rounded-xl border border-orange-500 flex items-center justify-between px-5">
-            <div className="flex items-center gap-4">
-              <span className="text-4xl">📄</span>
-              <div>
-                <p className="text-white font-semibold">{fileName}</p>
-                <p className="text-gray-400 text-sm">File ready to roast 🔥</p>
+          <div className="w-full h-44 bg-gray-800 rounded-xl border border-orange-500 flex flex-col justify-between p-4">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-3xl">📄</span>
+                <div>
+                  <p className="text-white font-semibold text-sm">{fileName}</p>
+                  <p className="text-gray-400 text-xs mt-1">
+                    {fileLoading ? "Reading file..." : "File ready to roast 🔥"}
+                  </p>
+                </div>
               </div>
+              <button
+                className="text-white hover:text-gray-300 transition ml-2"
+                onClick={() => { setFileName(""); setResume(""); }}
+              >
+                ✕
+              </button>
             </div>
-            <button
-              className="text-red-400 text-xl hover:text-red-300 transition"
-              onClick={() => { setFileName(""); setResume(""); }}
-            >
-              ✕
-            </button>
+
+            <div className="mt-auto">
+              {fileLoading ? (
+                <div className="w-full bg-gray-700 rounded-full h-1.5">
+                  <div className="bg-orange-500 h-1.5 rounded-full w-3/4 animate-pulse"></div>
+                </div>
+              ) : (
+                <div className="w-full bg-gray-700 rounded-full h-1.5">
+                  <div className="bg-orange-500 h-1.5 rounded-full w-full"></div>
+                </div>
+              )}
+              <p className="text-gray-600 text-xs mt-1 text-right">
+                {fileLoading ? "Processing..." : "Ready ✅"}
+              </p>
+            </div>
           </div>
         )}
 
@@ -147,10 +174,11 @@ function App() {
         )}
 
         <button
-          className="mt-4 w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition text-lg"
+          className="mt-4 w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl transition text-lg disabled:opacity-50"
           onClick={handleRoast}
+          disabled={fileLoading}
         >
-          {loading ? "Roasting... 🔥" : "Roast It 🔥"}
+          {fileLoading ? "Reading file... ⏳" : loading ? "Roasting... 🔥" : "Roast It 🔥"}
         </button>
 
         {roast && (
