@@ -1,6 +1,15 @@
+const pdfParse = require("pdf-parse");
+
 exports.handler = async (event) => {
   try {
-    const { resume } = JSON.parse(event.body);
+    let { resume } = JSON.parse(event.body);
+
+    if (resume.startsWith("PDF:")) {
+      const base64 = resume.replace("PDF:", "");
+      const buffer = Buffer.from(base64, "base64");
+      const pdfData = await pdfParse(buffer);
+      resume = pdfData.text;
+    }
 
     const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -26,8 +35,6 @@ Be specific, funny, and honest. No long paragraphs. Resume: ${resume}`
     });
 
     const data = await response.json();
-    console.log("Groq response:", JSON.stringify(data));
-
     const roast = data?.choices?.[0]?.message?.content || JSON.stringify(data);
 
     return {

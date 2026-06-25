@@ -28,25 +28,18 @@ function App() {
 
     setLoading(false);
   };
-
-  const handleFileUpload = async (e) => {
+const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     if (file.type === "application/pdf") {
       const reader = new FileReader();
-      reader.onload = async (event) => {
-        const typedArray = new Uint8Array(event.target.result);
-        const pdfjsLib = await import("pdfjs-dist");
-        pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
-        const pdf = await pdfjsLib.getDocument(typedArray).promise;
-        let text = "";
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const content = await page.getTextContent();
-          text += content.items.map((item) => item.str).join(" ");
-        }
-        setResume(text);
+      reader.onload = (event) => {
+        const base64 = btoa(
+          new Uint8Array(event.target.result)
+            .reduce((data, byte) => data + String.fromCharCode(byte), "")
+        );
+        setResume(`PDF:${base64}`);
       };
       reader.readAsArrayBuffer(file);
     } else {
@@ -57,7 +50,6 @@ function App() {
       reader.readAsText(file);
     }
   };
-
   return (
     <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center px-4 py-10">
 
