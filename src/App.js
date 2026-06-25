@@ -37,23 +37,36 @@ function App() {
 
     if (file.type === "application/pdf") {
       const reader = new FileReader();
-      reader.onload = (event) => {
-        const base64 = btoa(
-          new Uint8Array(event.target.result)
-            .reduce((data, byte) => data + String.fromCharCode(byte), "")
-        );
-        setResume(`PDF:${base64}`);
+      reader.onload = async (event) => {
+        try {
+          const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.js");
+          pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js`;
+          const pdf = await pdfjsLib.getDocument({ data: event.target.result }).promise;
+          let text = "";
+          for (let i = 1; i <= pdf.numPages; i++) {
+            const page = await pdf.getPage(i);
+            const content = await page.getTextContent();
+            text += content.items.map((item) => item.str).join(" ") + "\n";
+          }
+          setResume(text);
+        } catch (err) {
+          setError("Could not read PDF. Please paste your resume text instead.");
+          setFileName("");
+        }
       };
       reader.readAsArrayBuffer(file);
 
     } else if (file.name.endsWith(".docx")) {
-      const mammoth = await import("mammoth");
       const reader = new FileReader();
       reader.onload = async (event) => {
-        const result = await mammoth.extractRawText({
-          arrayBuffer: event.target.result
-        });
-        setResume(result.value);
+        try {
+          const mammoth = await import("mammoth");
+          const result = await mammoth.extractRawText({ arrayBuffer: event.target.result });
+          setResume(result.value);
+        } catch (err) {
+          setError("Could not read DOCX. Please paste your resume text instead.");
+          setFileName("");
+        }
       };
       reader.readAsArrayBuffer(file);
 
@@ -87,15 +100,20 @@ function App() {
             onChange={(e) => setResume(e.target.value)}
           />
         ) : (
-          <div className="w-full h-44 bg-gray-800 rounded-xl border border-orange-500 flex flex-col items-center justify-center gap-2">
-            <span className="text-4xl">📄</span>
-            <p className="text-white font-semibold">{fileName}</p>
-            <p className="text-gray-400 text-sm">File ready to roast</p>
+         
+          <div className="w-full h-44 bg-gray-800 rounded-xl border border-orange-500 flex items-center justify-between px-5">
+            <div className="flex items-center gap-4">
+              <span className="text-4xl">📄</span>
+              <div>
+                <p className="text-white font-semibold">{fileName}</p>
+                <p className="text-gray-400 text-sm">File ready to roast 🔥</p>
+              </div>
+            </div>
             <button
-              className="text-red-400 text-xs mt-1 hover:text-red-300"
+              className="text-red-400 text-xl hover:text-red-300 transition"
               onClick={() => { setFileName(""); setResume(""); }}
             >
-              ✕ Remove file
+              ✕
             </button>
           </div>
         )}
